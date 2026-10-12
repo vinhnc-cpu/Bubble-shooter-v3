@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.log
+*.bak*
+.bak*/
+.env
+
+# thông tin kết nối
+dags/bb3_dda/configs/local_secrets.py
+
+# dữ liệu / model sinh ra khi chạy
+dags/bb3_dda/work/
+dags/bb3_dda/runs/
+dags/bb3_dda/releases/
