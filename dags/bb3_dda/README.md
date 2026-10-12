@@ -29,7 +29,7 @@ DAG `bb3_dda_daily_train` (15:00 UTC hằng ngày) train lại model dự báo b
 1. Đọc model: `client/DdaModel.cs` → `DdaModel.Load(bytes)`, rồi `Predict(double[40])`.
 2. Tính 40 feature sau mỗi lượt theo đúng `core/fe_lib.py` và thứ tự trong `manifest.features`. Giá trị thiếu truyền `NaN`.
 3. So điểm với `thr_flag` / `thr_low` theo vùng màn (1-5 / 6-10 / 11+), rồi áp dụng policy v6 (`dda_policy_v6.py`) với tham số trong `manifest.policy`.
-4. Tracking (chỉ user nhóm treatment): thêm param vào `level_up`: `dda_model_ver`, `dda_p`, `balls_base`, `balls_delta`, `dda_action`.
+4. Tracking (chỉ user nhóm treatment): thêm param vào `level_up`: `dda_model_version`, `dda_p_value`, `balls_base`, `balls_delta`, `dda_action`.
 5. Kiểm tra `sha256` trước khi dùng file tải về; lỗi thì giữ model cũ.
 
 ## Chạy tay
