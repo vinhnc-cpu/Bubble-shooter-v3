@@ -1,10 +1,10 @@
-// DdaModel.cs - đọc model.bin (định dạng BB3D v1) và dự báo xác suất bỏ game trên thiết bị.
+// DdaModel.cs - đọc model_trees.bin (định dạng BB3D v1) và dự báo xác suất bỏ game trên thiết bị.
 // Không cần thư viện ngoài. Tương thích C# 5+ (mọi bản Unity). Đã kiểm tra: khớp LightGBM, chênh lệch tối đa 2.6e-8 trên 5,000 lượt.
 //
 // Cách dùng:
 //   var model = DdaModel.Load(File.ReadAllBytes(path));       // hoặc TextAsset.bytes
-//   double p = model.Predict(features);                       // features: double[40], ĐÚNG thứ tự manifest.features
-//   bool flagged = p >= thrFlag[zone];                        // ngưỡng trong manifest.thr_flag
+//   double p = model.Predict(features);                       // features: double[40], ĐÚNG thứ tự model_manifest.json (features)
+//   bool flagged = p >= thrFlag[zone];                        // ngưỡng trong model_manifest.json (thr_flag)
 //
 // Giá trị thiếu (vd z_attempt khi thua, gap_prev_sec ở lượt đầu) truyền double.NaN.
 // Quy tắc rẽ nhánh giống LightGBM Tree::NumericalDecision (xem pipeline/package.py).
@@ -76,7 +76,7 @@ public sealed class DdaModel
     public double Predict(double[] x)
     {
         if (x == null || x.Length != FeatureCount)
-            throw new ArgumentException("Can dung " + FeatureCount + " feature theo thu tu manifest.features");
+            throw new ArgumentException("Can dung " + FeatureCount + " feature theo thu tu model_manifest.json (features)");
         double raw = 0;
         foreach (var t in _trees)
         {

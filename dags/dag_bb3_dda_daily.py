@@ -13,7 +13,7 @@ Luồng:
                      chia 40 phần theo hash user (vừa 16 GB RAM worker) -> work/<ds>/chunk_XX.parquet
   train_model      : train trên user cài sớm, valid = 35 ngày cài gần nhất (1/2 dừng sớm, 1/2 đánh giá),
                      tính ngưỡng gắn cờ 15% và rủi ro thấp 70% theo vùng màn -> runs/<ds>/
-  package_model    : model.bin + manifest.json + levels.json + country_tier.json, kiểm tra parity với LightGBM
+  package_model    : model_trees.bin + model_manifest.json + model_levels.json + model_country_tier.json, kiểm tra parity với LightGBM
   gate_and_publish : model mới chỉ thay model đang dùng nếu không kém hơn trên cùng tập đánh giá
                      -> releases/<version>/ và releases/latest/ ; không đạt -> skip (giữ model cũ)
   cleanup          : xóa work/<ds> (chỉ khi các bước trước không lỗi, để chạy lại không phải dựng lại dữ liệu),

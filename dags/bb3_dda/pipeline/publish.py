@@ -35,7 +35,7 @@ def publish(run_dir, version):
         shutil.rmtree(latest)
     os.rename(tmp, latest)
     hist = os.path.join(S.RELEASE_DIR, 'history.jsonl')
-    man = json.load(open(os.path.join(dst, 'manifest.json')))
+    man = json.load(open(os.path.join(dst, S.PKG_MANIFEST)))
     with open(hist, 'a') as f:
         f.write(json.dumps(dict(version=version, build=man.get('build'), created=man['created_utc'], roc=man['metrics']['new']['roc'],
                                 pr=man['metrics']['new']['pr'], trees=man['n_trees'])) + '\n')

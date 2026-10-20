@@ -1,6 +1,6 @@
-# Đóng gói model cho thiết bị: model.bin (cây quyết định dạng mảng) + manifest.json + levels.json + country_tier.json
+# Đóng gói model cho thiết bị: model_trees.bin (cây quyết định dạng mảng) + model_manifest.json + model_levels.json + model_country_tier.json
 #
-# Định dạng model.bin (little-endian), đọc bởi client/DdaModel.cs:
+# Định dạng model_trees.bin (little-endian), đọc bởi client/DdaModel.cs:
 #   header : char[4] 'BB3D' | uint16 format_version (=1) | uint16 n_features | uint32 n_trees
 #   mỗi cây: uint16 n_internal | uint16 n_leaves
 #            uint8  feature[n_internal]
@@ -142,7 +142,7 @@ def package(run_dir, run_date, windows, metrics):
     max_diff = float(np.abs(p_bin - p_lgb).max())
     log.info('parity %s luot: chenh lech lon nhat %.2e', f'{len(X):,}', max_diff)
     if max_diff > 1e-5:
-        raise RuntimeError(f'model.bin khong khop LightGBM (max diff {max_diff:.2e})')
+        raise RuntimeError(f'{S.PKG_MODEL} khong khop LightGBM (max diff {max_diff:.2e})')
 
     pkg = os.path.join(run_dir, 'package')
     os.makedirs(pkg, exist_ok=True)
@@ -154,12 +154,12 @@ def package(run_dir, run_date, windows, metrics):
                    loss_rate=num(LT['lr'].get(L)), jump=num(LT['jump'].get(L))) for L in range(1, 1001)]
     tier = pd.read_csv(os.path.join(S.DATA_DIR, 'country_tier.csv'))
     country = {r.country: TIER_CODE[r.tier] for r in tier.itertuples() if isinstance(r.country, str)}
-    files = {'model.bin': blob,
-             'levels.json': json.dumps(levels, separators=(',', ':')).encode(),
-             'country_tier.json': json.dumps(dict(default=TIER_CODE['Z'], map=country), separators=(',', ':')).encode()}
+    files = {S.PKG_MODEL: blob,
+             S.PKG_LEVELS: json.dumps(levels, separators=(',', ':')).encode(),
+             S.PKG_TIER: json.dumps(dict(default=TIER_CODE['Z'], map=country), separators=(',', ':')).encode()}
     for name, b in files.items():
         open(os.path.join(pkg, name), 'wb').write(b)
-    open(os.path.join(pkg, 'model.bin.gz'), 'wb').write(gzip.compress(blob, 9))
+    open(os.path.join(pkg, S.PKG_MODEL + '.gz'), 'wb').write(gzip.compress(blob, 9))
 
     version = next_version()
     build = f"{run_date.strftime('%Y%m%d')}-t{len(trees)}"     # mã nội bộ: ngày dữ liệu + số cây
@@ -169,9 +169,9 @@ def package(run_dir, run_date, windows, metrics):
         features=F_DEVICE,
         feature_notes={'z_attempt': 'NaN neu luot thua', 'used_ratio': 'NaN neu luot thua',
                        'gap_prev_sec': 'NaN o luot dau', 'roll10w_*': 'NaN neu chua co luot thang',
-                       'tier_code': 'tra country_tier.json, mac dinh 3 (Z)',
+                       'tier_code': 'tra ' + S.PKG_TIER + ', mac dinh 3 (Z)',
                        'src': 'level neu <= 1000, nguoc lai 100 + (level - 100) % 900',
-                       'level tables': 'mu, sd, loss_rate, jump, total_balls theo src trong levels.json'},
+                       'level tables': 'mu, sd, loss_rate, jump, total_balls theo src trong ' + S.PKG_LEVELS},
         zones={'1-5': [1, 5], '6-10': [6, 10], '11+': [11, None]},
         thr_flag=metrics['thr_flag'], thr_low=metrics['thr_low'],
         flag_budget=S.FLAG_BUDGET, low_risk_quantile=S.LOW_RISK_Q, policy=S.POLICY,
@@ -179,7 +179,7 @@ def package(run_dir, run_date, windows, metrics):
         parity_max_abs_diff=max_diff,
         files={n: dict(bytes=len(b), sha256=sha(b)) for n, b in files.items()},
     )
-    json.dump(manifest, open(os.path.join(pkg, 'manifest.json'), 'w'), indent=2, ensure_ascii=False)
-    log.info('dong goi %s: model.bin %.0f KB (gzip %.0f KB)', version, len(blob) / 1024,
-             os.path.getsize(os.path.join(pkg, 'model.bin.gz')) / 1024)
+    json.dump(manifest, open(os.path.join(pkg, S.PKG_MANIFEST), 'w'), indent=2, ensure_ascii=False)
+    log.info('dong goi %s: ' + S.PKG_MODEL + ' %.0f KB (gzip %.0f KB)', version, len(blob) / 1024,
+             os.path.getsize(os.path.join(pkg, S.PKG_MODEL + '.gz')) / 1024)
     return dict(version=version, build=build, bytes=len(blob), parity=max_diff, pkg=pkg)

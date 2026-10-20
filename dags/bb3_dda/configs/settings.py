@@ -8,8 +8,14 @@ RUNS_DIR = os.path.join(PROJECT_DIR, 'runs')            # model ứng viên + me
 RELEASE_DIR = os.path.join(PROJECT_DIR, 'releases')     # gói model đã được chấp nhận; releases/latest = bản đang dùng
 KEEP_RUNS = 14                                          # giữ 14 ngày gần nhất
 # Version model dạng MAJOR.MINOR (giống app_version): mỗi lần phát hành MINOR + 1.
-# Tăng MAJOR (MINOR về 0) khi đổi feature / định dạng model.bin (client phải cập nhật code).
+# Tăng MAJOR (MINOR về 0) khi đổi feature / định dạng model_trees.bin (client phải cập nhật code).
 MODEL_MAJOR = 1
+
+# Tên file trong gói model đưa vào game (tiền tố model_ để không nhầm với file của hệ thống / game)
+PKG_MODEL = 'model_trees.bin'                 # cây quyết định, định dạng BB3D (bản nén: + '.gz')
+PKG_MANIFEST = 'model_manifest.json'          # version, thứ tự feature, ngưỡng, policy, sha256
+PKG_LEVELS = 'model_levels.json'              # bảng 1000 màn
+PKG_TIER = 'model_country_tier.json'          # quốc gia -> tier_code
 
 # ClickHouse: HTTP 8123 (TCP 9000 bị chặn từ subnet Docker)
 # Thông tin kết nối lấy từ biến môi trường BB3_CH_*; nếu không có thì đọc configs/local_secrets.py (không đưa lên git).

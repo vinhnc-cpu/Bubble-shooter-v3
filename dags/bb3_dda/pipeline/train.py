@@ -66,7 +66,7 @@ def train_model(work_dir, run_dir):
         pm = lgb.Booster(model_file=prod)
         if pm.feature_name() == F_DEVICE:
             res['prod'] = evaluate(y, pm.predict(ev[F_DEVICE]), lvl, ai)
-            res['prod_version'] = json.load(open(os.path.join(S.RELEASE_DIR, 'latest', 'manifest.json')))['version']
+            res['prod_version'] = json.load(open(os.path.join(S.RELEASE_DIR, 'latest', S.PKG_MANIFEST)))['version']
         else:
             log.warning('model dang dung co bo feature khac -> bo qua so sanh')
     shutil.copy(os.path.join(work_dir, 'level_stats.csv'), os.path.join(run_dir, 'level_stats.csv'))
