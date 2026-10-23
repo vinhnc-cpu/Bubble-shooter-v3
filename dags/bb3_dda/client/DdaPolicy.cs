@@ -84,7 +84,7 @@ public static class DdaPolicy
             double margin = 0;
             foreach (var m in winMargins) margin += m;
             margin /= winMargins.Count;
-            int k = (int)Math.Floor(-r * margin * totalBallsNext + Eps);
+            int k = (int)Math.Ceiling(-r * margin * totalBallsNext - Eps);   // làm tròn lên (giống phía thêm)
             k = Math.Min(k, (int)Math.Floor(p.CapDown * totalBallsNext + Eps));
             return -Math.Max(p.CutMinBalls, k);      // đang ở trạng thái bớt: bớt tối thiểu CutMinBalls quả
         }

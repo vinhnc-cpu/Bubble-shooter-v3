@@ -96,7 +96,7 @@ def ball_delta(r, win_margins, total_balls_next):
         return math.ceil(r * total_balls_next - EPS)
     if r < 0 and win_margins:
         margin = sum(win_margins) / len(win_margins)
-        k = math.floor(-r * margin * total_balls_next + EPS)
+        k = math.ceil(-r * margin * total_balls_next - EPS)      # làm tròn lên (giống phía thêm)
         k = min(k, math.floor(CAP_DOWN * total_balls_next + EPS))
         return -max(CUT_MIN_BALLS, k)       # bớt tối thiểu 1 quả khi đang ở trạng thái bớt (r < 0)
     return 0
