@@ -18,7 +18,7 @@ public struct DdaAttempt
     public int Stars;        // ep_level_up_stars (thua = 0)
     public int Remain;       // số bóng dư thật (ep_level_up_numball_remain)
     public int SpecUsed;     // số bóng đặc biệt đã dùng (ep_level_up_numballspec_used)
-    public int UserDo;       // ep_level_up_user_do: 1 = tự chơi, 2/3 = có trợ giúp; 0 = không gửi
+    public int UserDo;       // ep_level_up_user_do: nút bấm ở màn kết quả, 1 = Next, 2 = Home, 3 = Replay; 0 = không gửi
 }
 
 public static class DdaFeatures

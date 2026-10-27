@@ -12,7 +12,7 @@ public static class DdaPolicy
 {
     const double Eps = 1e-9;
 
-    /// <summary>Đang vật lộn: thua, hoặc gần đây dùng nhiều bóng đặc biệt / hay cần trợ giúp.</summary>
+    /// <summary>Đang vật lộn: thua, hoặc gần đây dùng nhiều bóng đặc biệt / nhiều lượt không bấm Next (user_do khác 1).</summary>
     public static bool IsStruggling(DdaPolicyParams p, bool win, double roll10SpecUsed, double roll10Assist)
     {
         return !win || roll10SpecUsed >= p.StruggleSpecUsed || roll10Assist >= p.StruggleAssist;

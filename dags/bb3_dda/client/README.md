@@ -93,7 +93,7 @@ var res = dda.OnAttemptEnd(new DdaAttempt {
     Stars = stars,            // thua = 0
     Remain = remain,          // số bóng dư thật
     SpecUsed = specUsed,      // số bóng đặc biệt đã dùng
-    UserDo = userDo,          // 1 tự chơi, 2/3 có trợ giúp
+    UserDo = userDo,          // nút bấm ở màn kết quả: 1 Next, 2 Home, 3 Replay
 }, DateTime.UtcNow);
 
 if (res.Track)
