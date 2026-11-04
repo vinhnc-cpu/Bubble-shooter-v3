@@ -50,13 +50,15 @@ public static class DdaPolicy
     {
         if (level < Math.Min(p.MinLevelAdd, p.MinLevelCut))
             return 0.0;
-        // 1) bị gắn cờ: bỏ phần bớt bóng; nếu đang vật lộn thì cộng dồn thêm
+        // 1) bị gắn cờ: bỏ phần bớt bóng; nếu đang vật lộn thì cộng dồn thêm.
+        //    Bị gắn cờ mà thắng (không vật lộn) và đang được thêm -> xuống bước 3 để giảm phần thêm như bình thường.
         if (flagged)
         {
             r = Math.Max(r, 0.0);
             if (struggling && level >= p.MinLevelAdd)
-                r = Math.Min(r + p.StepUp, p.RUpMax);
-            return r;
+                return Math.Min(r + p.StepUp, p.RUpMax);
+            if (!(win && r > 0))
+                return r;
         }
         // 2) đang bớt bóng mà thua -> trả về số bóng gốc ngay
         if (r < 0 && !win)

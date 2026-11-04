@@ -1,6 +1,7 @@
-# Chính sách điều chỉnh số bóng v6 (bản tham chiếu cho client)
-#   THÊM: cộng dồn theo tỷ lệ số bóng gốc, từ màn 1
-#   BỚT : theo ĐỘ DƯ của chính người chơi, từ màn 1, ngưỡng rủi ro thấp 70%
+# Chính sách điều chỉnh số bóng (bản tham chiếu cho client). Client đọc tham số từ manifest.policy.
+#   v7 (04/11/2026, sau A/B 1.82.1): chỉ thêm +10% số bóng gốc cho lượt chơi lại sau khi thua và bị gắn cờ,
+#       thắng là hết phần thêm; tắt bớt bóng (g_down_max = 0); "vật lộn" = thua (struggle_* = 999).
+#   v6: THÊM cộng dồn 5%/lần đến 20%; BỚT theo độ dư khi thắng dễ, ngưỡng rủi ro thấp 70%.
 # Trạng thái mỗi user:
 #   r              > 0: tỷ lệ thêm (vd 0.10 = +10% số bóng gốc), < 0: phần độ dư bị bớt (vd -0.20 = bớt 20% độ dư)
 #   win_margins    tỷ lệ bóng dư (remain / TotalBalls) của 10 lượt THẮNG gần nhất
@@ -12,16 +13,18 @@ THR_LOW = {'1-5': 0.0777, '6-10': 0.0464, '11+': 0.0078}    # 70% lượt rủi 
 
 # --- Thêm bóng ---
 MIN_LEVEL_ADD = 1
-STEP_UP = 0.05        # mỗi lần bị gắn cờ và đang vật lộn: +5% số bóng gốc
-R_UP_MAX = 0.20       # trần +20%
-WIN_DECAY = 2         # từ lần thắng liên tiếp thứ 2, mỗi lần thắng trừ STEP_UP
+STEP_UP = 0.10        # mỗi lần bị gắn cờ và đang vật lộn: +10% số bóng gốc (v6: 0.05)
+R_UP_MAX = 0.10       # trần +10%, không cộng dồn (v6: 0.20)
+WIN_DECAY = 1         # thắng 1 lần là trừ STEP_UP -> về số bóng gốc (v6: 2)
+STRUGGLE_SPEC_USED = 999.0   # vật lộn chỉ khi thua (v6: roll10_spec_used >= 1.0)
+STRUGGLE_ASSIST = 999.0      # (v6: roll10_assist >= 0.3)
 
 # --- Bớt bóng ---
 MIN_LEVEL_CUT = 1     # bớt bóng từ màn 1 (trước: màn 11)
 CUT_WINS = 2          # thắng liên tiếp >= 2 lần
 CUT_Z = 0.3           # trung bình z của 10 lượt thắng gần nhất >= 0.3
 STEP_DOWN = 0.10      # mỗi lần thắng dễ: bớt thêm 10% độ dư
-G_DOWN_MAX = 0.50     # trần: 50% độ dư
+G_DOWN_MAX = 0.0      # trần bớt; 0 = tắt bớt bóng (v6: 0.50 độ dư)
 CAP_DOWN = 0.30       # và không quá 30% số bóng gốc của màn sắp chơi
 CUT_MIN_BALLS = 1     # khi r < 0: bớt tối thiểu 1 quả (giống phía thêm luôn >= 1)
 MARGIN_N = 10
@@ -42,7 +45,7 @@ def is_low_risk(p, level):
 
 
 def is_struggling(win, roll10_spec_used, roll10_assist):
-    return win == 0 or roll10_spec_used >= 1.0 or roll10_assist >= 0.3
+    return win != 1 or roll10_spec_used >= STRUGGLE_SPEC_USED or roll10_assist >= STRUGGLE_ASSIST
 
 
 def is_easy(win, consec_win, roll10w_z_attempt, low_risk):
@@ -70,12 +73,14 @@ def update_r(r, level, win, flagged, struggling, easy, consec_win):
     """Gọi sau MỖI lượt chơi. Trả về trạng thái r cho lượt chơi kế tiếp (thắng: màn mới, thua: chơi lại màn đó)."""
     if level < min(MIN_LEVEL_ADD, MIN_LEVEL_CUT):
         return 0.0
-    # 1) bị gắn cờ: bỏ phần bớt bóng; nếu đang vật lộn thì cộng dồn thêm
+    # 1) bị gắn cờ: bỏ phần bớt bóng; nếu đang vật lộn thì cộng dồn thêm.
+    #    Bị gắn cờ mà thắng (không vật lộn) và đang được thêm -> xuống bước 3 để giảm phần thêm như bình thường.
     if flagged:
         r = max(r, 0.0)
         if struggling and level >= MIN_LEVEL_ADD:
-            r = min(r + STEP_UP, R_UP_MAX)
-        return r
+            return min(r + STEP_UP, R_UP_MAX)
+        if not (win == 1 and r > 0):
+            return r
     # 2) đang bớt bóng mà thua -> trả về số bóng gốc ngay
     if r < 0 and win == 0:
         return 0.0

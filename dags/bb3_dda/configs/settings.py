@@ -58,10 +58,12 @@ GATE_MIN_PR_RATIO = 0.95
 FLAG_BUDGET = 0.15                 # 15% lượt rủi ro cao nhất -> gắn cờ
 LOW_RISK_Q = 0.70                  # 70% lượt rủi ro thấp nhất -> đủ điều kiện bớt bóng
 
-# Tham số policy v6 đóng gói kèm model (client đọc từ manifest)
+# Tham số policy đóng gói kèm model (client đọc từ manifest)
+# v7 (04/11/2026, sau A/B 1.82.1): chỉ thêm +10% cho lượt chơi lại sau khi thua và bị gắn cờ; tắt bớt bóng.
+# v6: step_up=0.05, r_up_max=0.20, win_decay=2, g_down_max=0.50, struggle_spec_used=1.0, struggle_assist=0.3
 POLICY = dict(
-    min_level_add=1, step_up=0.05, r_up_max=0.20, win_decay=2,
-    min_level_cut=1, cut_wins=2, cut_z=0.3, step_down=0.10, g_down_max=0.50, cap_down=0.30, margin_n=10,
-    cut_min_balls=1,      # khi r < 0: bớt tối thiểu 1 quả
-    struggle_spec_used=1.0, struggle_assist=0.3,
+    min_level_add=1, step_up=0.10, r_up_max=0.10, win_decay=1,
+    min_level_cut=1, cut_wins=2, cut_z=0.3, step_down=0.10, g_down_max=0.0, cap_down=0.30, margin_n=10,
+    cut_min_balls=1,      # khi r < 0: bớt tối thiểu 1 quả (g_down_max = 0 nên không xảy ra)
+    struggle_spec_used=999.0, struggle_assist=999.0,   # "vật lộn" = thua
 )
