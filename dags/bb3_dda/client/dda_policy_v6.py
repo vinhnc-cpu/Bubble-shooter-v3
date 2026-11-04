@@ -1,6 +1,7 @@
 # Chính sách điều chỉnh số bóng (bản tham chiếu cho client). Client đọc tham số từ manifest.policy.
 #   v7 (04/11/2026, sau A/B 1.82.1): chỉ thêm +10% số bóng gốc cho lượt chơi lại sau khi thua và bị gắn cờ,
-#       thắng là hết phần thêm; tắt bớt bóng (g_down_max = 0); "vật lộn" = thua (struggle_* = 999).
+#       thắng là hết phần thêm; "vật lộn" = thua (struggle_* = 999);
+#       bớt nhẹ: từ màn 11, z >= 0.5, mỗi bước 5% độ dư, tối đa 15% độ dư và 10% số bóng gốc.
 #   v6: THÊM cộng dồn 5%/lần đến 20%; BỚT theo độ dư khi thắng dễ, ngưỡng rủi ro thấp 70%.
 # Trạng thái mỗi user:
 #   r              > 0: tỷ lệ thêm (vd 0.10 = +10% số bóng gốc), < 0: phần độ dư bị bớt (vd -0.20 = bớt 20% độ dư)
@@ -20,12 +21,12 @@ STRUGGLE_SPEC_USED = 999.0   # vật lộn chỉ khi thua (v6: roll10_spec_used 
 STRUGGLE_ASSIST = 999.0      # (v6: roll10_assist >= 0.3)
 
 # --- Bớt bóng ---
-MIN_LEVEL_CUT = 1     # bớt bóng từ màn 1 (trước: màn 11)
+MIN_LEVEL_CUT = 11    # bớt bóng từ màn 11 (v6: màn 1)
 CUT_WINS = 2          # thắng liên tiếp >= 2 lần
-CUT_Z = 0.3           # trung bình z của 10 lượt thắng gần nhất >= 0.3
-STEP_DOWN = 0.10      # mỗi lần thắng dễ: bớt thêm 10% độ dư
-G_DOWN_MAX = 0.0      # trần bớt; 0 = tắt bớt bóng (v6: 0.50 độ dư)
-CAP_DOWN = 0.30       # và không quá 30% số bóng gốc của màn sắp chơi
+CUT_Z = 0.5           # trung bình z của 10 lượt thắng gần nhất >= 0.5 (v6: 0.3)
+STEP_DOWN = 0.05      # mỗi lần thắng dễ: bớt thêm 5% độ dư (v6: 10%)
+G_DOWN_MAX = 0.15     # trần: 15% độ dư (v6: 50%); 0 = tắt bớt bóng
+CAP_DOWN = 0.10       # và không quá 10% số bóng gốc của màn sắp chơi (v6: 30%)
 CUT_MIN_BALLS = 1     # khi r < 0: bớt tối thiểu 1 quả (giống phía thêm luôn >= 1)
 MARGIN_N = 10
 

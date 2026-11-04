@@ -59,11 +59,13 @@ FLAG_BUDGET = 0.15                 # 15% lượt rủi ro cao nhất -> gắn c�
 LOW_RISK_Q = 0.70                  # 70% lượt rủi ro thấp nhất -> đủ điều kiện bớt bóng
 
 # Tham số policy đóng gói kèm model (client đọc từ manifest)
-# v7 (04/11/2026, sau A/B 1.82.1): chỉ thêm +10% cho lượt chơi lại sau khi thua và bị gắn cờ; tắt bớt bóng.
-# v6: step_up=0.05, r_up_max=0.20, win_decay=2, g_down_max=0.50, struggle_spec_used=1.0, struggle_assist=0.3
+# v7 (04/11/2026, sau A/B 1.82.1): chỉ thêm +10% cho lượt chơi lại sau khi thua và bị gắn cờ;
+#     bớt nhẹ: từ màn 11, thắng dễ (z >= 0.5), mỗi bước 5% độ dư, tối đa 15% độ dư và 10% số bóng gốc.
+# v6: step_up=0.05, r_up_max=0.20, win_decay=2, min_level_cut=1, cut_z=0.3, step_down=0.10, g_down_max=0.50,
+#     cap_down=0.30, struggle_spec_used=1.0, struggle_assist=0.3
 POLICY = dict(
     min_level_add=1, step_up=0.10, r_up_max=0.10, win_decay=1,
-    min_level_cut=1, cut_wins=2, cut_z=0.3, step_down=0.10, g_down_max=0.0, cap_down=0.30, margin_n=10,
-    cut_min_balls=1,      # khi r < 0: bớt tối thiểu 1 quả (g_down_max = 0 nên không xảy ra)
+    min_level_cut=11, cut_wins=2, cut_z=0.5, step_down=0.05, g_down_max=0.15, cap_down=0.10, margin_n=10,
+    cut_min_balls=1,      # khi r < 0: bớt tối thiểu 1 quả
     struggle_spec_used=999.0, struggle_assist=999.0,   # "vật lộn" = thua
 )
