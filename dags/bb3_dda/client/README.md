@@ -89,7 +89,7 @@ dda.OnRateDialog();                // mỗi lần hiện hộp thoại đánh gi
 ```csharp
 var res = dda.OnAttemptEnd(new DdaAttempt {
     Level = level,            // số màn thật, có thể > 1000
-    Win = win,
+    Win = win,                // level_up_value = 1 thắng, 0 thua; -1 (bỏ dở giữa màn): TẠM truyền true, khớp dữ liệu train
     Stars = stars,            // thua = 0
     Remain = remain,          // số bóng dư thật
     SpecUsed = specUsed,      // số bóng đặc biệt đã dùng

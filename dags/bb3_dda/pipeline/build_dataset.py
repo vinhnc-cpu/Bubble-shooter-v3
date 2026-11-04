@@ -56,10 +56,12 @@ COH = """cohort AS (SELECT user_pseudo_id AS uid, min(event_date) AS inst FROM {
   HAVING inst BETWEEN toDate('{a}') AND toDate('{b}') {ch}
      AND uid NOT IN (SELECT user_pseudo_id FROM {T} WHERE event_date >= '2026-10-28' AND up_dda_ab = 'ab_on'))"""
 
+# level_up_value = -1 (bỏ dở giữa màn, từ app 1.82.1): tạm coi là thắng như dữ liệu cũ (bỏ dở được ghi thành thắng 0 sao)
+# cho đến khi đủ dữ liệu -1 để học riêng.
 STATS = """WITH {coh}
 SELECT src, avgIf(remain, win = 1) AS mu, stddevSampIf(remain, win = 1) AS sd, 1 - avg(win) AS lr, count() AS n FROM (
   SELECT toInt64OrNull(ep_level_up_level) AS l, if(l <= 1000, l, 100 + ((l - 100) % 900)) AS src,
-         toInt64OrNull(ep_level_up_value) AS win, ep_level_up_numball_remain AS remain
+         if(toInt64OrNull(ep_level_up_value) = -1, 1, toInt64OrNull(ep_level_up_value)) AS win, ep_level_up_numball_remain AS remain
   FROM {T} WHERE event_name = 'level_up' AND event_timestamp <= {tsmax} AND event_timestamp < {cut}
     AND days_since_install BETWEEN 0 AND {dsi}
     AND user_pseudo_id IN (SELECT uid FROM cohort) AND l BETWEEN 1 AND 100000 AND win IS NOT NULL)
@@ -67,7 +69,7 @@ GROUP BY src ORDER BY src"""
 
 ATT = """WITH {coh},
 seq AS (SELECT user_pseudo_id AS uid, event_timestamp AS ts, days_since_install AS dsi, ga_session_number AS sess,
-  toInt64OrNull(ep_level_up_level) AS lvl, toInt64OrNull(ep_level_up_value) AS win, ep_level_up_stars AS stars,
+  toInt64OrNull(ep_level_up_level) AS lvl, if(toInt64OrNull(ep_level_up_value) = -1, 1, toInt64OrNull(ep_level_up_value)) AS win, ep_level_up_stars AS stars,
   ep_level_up_numball_remain AS remain, ep_level_up_numballspec_used AS spec_used, ep_level_up_user_do AS user_do,
   leadInFrame(event_timestamp) OVER (PARTITION BY user_pseudo_id ORDER BY event_timestamp
       ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS next_ts
