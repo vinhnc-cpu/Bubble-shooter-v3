@@ -50,9 +50,11 @@ def check_source(run_date):
     return str(data_end)
 
 
+# Bỏ user nhóm A/B ab_on (từ 28/10/2026): số bóng của họ đã bị model đổi, nếu giữ lại model sẽ học từ tác động của chính nó
 COH = """cohort AS (SELECT user_pseudo_id AS uid, min(event_date) AS inst FROM {T}
   WHERE event_name = 'first_open' AND platform = 'ANDROID' GROUP BY uid
-  HAVING inst BETWEEN toDate('{a}') AND toDate('{b}') {ch})"""
+  HAVING inst BETWEEN toDate('{a}') AND toDate('{b}') {ch}
+     AND uid NOT IN (SELECT user_pseudo_id FROM {T} WHERE event_date >= '2026-10-28' AND up_dda_ab = 'ab_on'))"""
 
 STATS = """WITH {coh}
 SELECT src, avgIf(remain, win = 1) AS mu, stddevSampIf(remain, win = 1) AS sd, 1 - avg(win) AS lr, count() AS n FROM (

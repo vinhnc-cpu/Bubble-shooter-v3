@@ -20,7 +20,7 @@ public sealed class DdaState
     public long LastAttemptMs;              // lúc kết thúc lượt gần nhất (0 = chưa có)
     public int StreakWin = -1;              // kết quả của chuỗi hiện tại (1 thắng, 0 thua, -1 chưa có)
     public int StreakLen;                   // độ dài chuỗi hiện tại
-    public List<double[]> Last10 = new List<double[]>();       // mỗi lượt: {win, specUsed, assist, adImps}
+    public List<double[]> Last10 = new List<double[]>();       // mỗi lượt: {win, specUsed, assist, adImps, home, replay, winNoNext}
     public List<double[]> Last10Wins = new List<double[]>();   // mỗi lượt thắng: {z, usedRatio}
     public double RollWZ = double.NaN;      // roll10w_z_attempt gần nhất (giữ nguyên khi thua)
     public double RollWUsed = double.NaN;   // roll10w_used_ratio gần nhất

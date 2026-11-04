@@ -1,5 +1,7 @@
-# Feature engineering cho model DDA - GIỐNG HỆT ~/dda_demo/fe_lib.py (model v5/v6, đã kiểm tra parity: 0 cột lệch)
+# Feature engineering cho model DDA - phần FEATS / NEW GIỐNG HỆT ~/dda_demo/fe_lib.py (model v5/v6, đã kiểm tra parity: 0 cột lệch)
 # Bổ sung cho bản đóng gói lên thiết bị: tier_code (số) thay cho tier_c (categorical) để client không phải xử lý split categorical.
+# Model 2.x (04/11/2026): thêm 6 feature nút bấm sau màn (BTN) từ user_do: 1 = Next, 2 = Home, 3 = Replay.
+#   Thử nghiệm ~/dda_demo/sig_exp.py: PR-AUC 0.1267 -> 0.1337, ROC cùng tuổi user 0.7753 -> 0.7775.
 import pandas as pd, numpy as np
 
 DAY = 86400 * 1_000_000
@@ -47,6 +49,9 @@ def build(df, ex, ST, cfg, tier):
     sd = df.src.map(ST['sd']).replace(0, np.nan)
     g = df.groupby('uid', sort=False)
     df['assist'] = ((df.user_do.notna()) & (df.user_do != 1)).astype(int)
+    df['home'] = (df.user_do == 2).astype(int)                                    # bấm Home ở màn kết quả
+    df['replay'] = (df.user_do == 3).astype(int)                                  # bấm Replay
+    df['win_no_next'] = ((df.win == 1) & df.user_do.notna() & (df.user_do != 1)).astype(int)   # thắng mà không bấm Next
     df['used_ratio'] = np.where(df.win == 1, ((df.total_balls - df.remain) / df.total_balls).clip(0, 1), np.nan)
     df['z_attempt'] = np.where(df.win == 1, (df.remain - mu) / sd, np.nan)
     df['attempt_idx'] = g.cumcount() + 1
@@ -58,7 +63,7 @@ def build(df, ex, ST, cfg, tier):
     streak = df.groupby(chg.cumsum()).cumcount() + 1
     df['consec_loss'] = np.where(df.win == 0, streak, 0)
     df['consec_win'] = np.where(df.win == 1, streak, 0)
-    for c in ['win', 'spec_used', 'assist']:
+    for c in ['win', 'spec_used', 'assist', 'home', 'replay', 'win_no_next']:
         df[f'roll10_{c}'] = roll_mean(df, c)
     W = df[df.win == 1]
     for c in ['z_attempt', 'used_ratio']:
@@ -90,7 +95,8 @@ def build(df, ex, ST, cfg, tier):
 
 # --- Bộ feature cho model chạy trên thiết bị (v7+) ---
 TIER_CODE = {'T1': 0, 'T2': 1, 'T3': 2, 'Z': 3}
-F_DEVICE = FEATS + NEW + ['tier_code']
+BTN = ['home', 'replay', 'win_no_next', 'roll10_home', 'roll10_replay', 'roll10_win_no_next']   # model 2.x
+F_DEVICE = FEATS + NEW + ['tier_code'] + BTN
 
 
 def add_tier_code(df):

@@ -1,6 +1,6 @@
 # DDA cho Bubble Shooter 3: code C# tích hợp vào game
 
-Sau mỗi lượt chơi, game tính 40 feature và model cho điểm rủi ro bỏ game. Từ điểm này, game quyết định số bóng của lượt kế tiếp.
+Sau mỗi lượt chơi, game tính 46 feature (model 2.x; model 1.x dùng 40) và model cho điểm rủi ro bỏ game. Từ điểm này, game quyết định số bóng của lượt kế tiếp.
 
 - Không cần thư viện ngoài, chạy được với mọi bản Unity.
 - Code là C# 5 thuần, không phụ thuộc Unity.
@@ -12,7 +12,7 @@ Sau mỗi lượt chơi, game tính 40 feature và model cho điểm rủi ro b�
 | `DdaEngine.cs` | **Lớp duy nhất game gọi tới.** Ghi nhận sự kiện, cho biết số bóng của màn, xử lý sau mỗi lượt |
 | `DdaPackage.cs` | Đọc gói model (4 file) và kiểm tra sha256; tra bảng màn, tier quốc gia, ngưỡng, tham số policy |
 | `DdaModel.cs` | Đọc `model_trees.bin` và tính điểm `p` |
-| `DdaFeatures.cs` | Tính 40 feature, công thức giống code train phía server |
+| `DdaFeatures.cs` | Tính 46 feature, công thức giống code train phía server |
 | `DdaPolicy.cs` | Logic thêm/bớt bóng v6 |
 | `DdaState.cs` | Dữ liệu lưu trên máy theo từng người chơi (lịch sử lượt, bộ đếm, trạng thái policy) |
 | `DdaJson.cs` | Đọc/ghi JSON. Không dùng được `JsonUtility` vì nó không đọc được dictionary |
@@ -93,7 +93,7 @@ var res = dda.OnAttemptEnd(new DdaAttempt {
     Stars = stars,            // thua = 0
     Remain = remain,          // số bóng dư thật
     SpecUsed = specUsed,      // số bóng đặc biệt đã dùng
-    UserDo = userDo,          // nút bấm ở màn kết quả: 1 Next, 2 Home, 3 Replay
+    UserDo = userDo,          // nút bấm ở màn kết quả: 1 Next, 2 Home, 3 Replay (model 2.x dùng trực tiếp, phải đúng)
 }, DateTime.UtcNow);
 
 if (res.Track)
@@ -141,7 +141,7 @@ Không hard-code ngưỡng hay tham số: model train lại hằng ngày, mọi 
 
 Chạy 24,435 lượt giả lập (400 người chơi) qua `DdaEngine` ở mode `On`. Trạng thái được lưu rồi đọc lại sau mỗi sự kiện. Kết quả so với code server:
 
-- 40 feature khớp `core/fe_lib.py`. Chênh lệch lớn nhất 1e-6, do bảng màn làm tròn 6 chữ số.
+- Các feature khớp `core/fe_lib.py`. Chênh lệch lớn nhất 1e-6, do bảng màn làm tròn 6 chữ số.
 - Điểm `p` khớp LightGBM, chênh lệch tối đa 3e-8.
 - Số bóng và trạng thái policy khớp `dda_policy_v6.py` ở 24,435/24,435 lượt.
 - Biên dịch được với `-langversion:5`, không có cảnh báo.

@@ -9,7 +9,7 @@ RELEASE_DIR = os.path.join(PROJECT_DIR, 'releases')     # gói model đã đư�
 KEEP_RUNS = 14                                          # giữ 14 ngày gần nhất
 # Version model dạng MAJOR.MINOR (giống app_version): mỗi lần phát hành MINOR + 1.
 # Tăng MAJOR (MINOR về 0) khi đổi feature / định dạng model_trees.bin (client phải cập nhật code).
-MODEL_MAJOR = 1
+MODEL_MAJOR = 2                    # 2: thêm 6 feature nút bấm (04/11/2026); client phải dùng DdaFeatures.cs bản 2
 
 # Tên file trong gói model đưa vào game (tiền tố model_ để không nhầm với file của hệ thống / game)
 PKG_MODEL = 'model_trees.bin'                 # cây quyết định, định dạng BB3D (bản nén: + '.gz')

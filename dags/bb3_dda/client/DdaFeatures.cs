@@ -31,6 +31,8 @@ public static class DdaFeatures
         "gap_prev_sec", "max_lvl_so_far", "lvl_loss_rate", "next_loss_rate", "next_jump", "next_total_balls",
         "hsi", "cum_engage_sec", "s_ad_usd", "cum_ad_usd", "cum_ad_imps", "s_engage_sec", "hour_utc",
         "roll10_ad_imps", "s_screen_views", "cum_rate_dialog", "s_ad_imps", "dow", "tier_code",
+        // model 2.x: nút bấm ở màn kết quả (UserDo)
+        "home", "replay", "win_no_next", "roll10_home", "roll10_replay", "roll10_win_no_next",
     };
 
     /// <summary>Manifest có feature game chưa biết tính -> gói model mới hơn code (tăng MAJOR), không dùng được.</summary>
@@ -55,6 +57,9 @@ public static class DdaFeatures
         double win = a.Win ? 1 : 0;
         double remain = remainAdj;
         double assist = (a.UserDo != 0 && a.UserDo != 1) ? 1 : 0;
+        double home = a.UserDo == 2 ? 1 : 0;                                   // bấm Home
+        double replay = a.UserDo == 3 ? 1 : 0;                                 // bấm Replay
+        double winNoNext = (a.Win && a.UserDo != 0 && a.UserDo != 1) ? 1 : 0;  // thắng mà không bấm Next
 
         // --- lượt vừa chơi ---
         double usedRatio = a.Win ? Clamp01((T - remain) / T) : NaN;
@@ -68,6 +73,9 @@ public static class DdaFeatures
         f["used_ratio"] = usedRatio;
         f["total_balls"] = T;
         f["z_attempt"] = z;
+        f["home"] = home;
+        f["replay"] = replay;
+        f["win_no_next"] = winNoNext;
 
         // --- bộ đếm theo người chơi ---
         st.AttemptCount++;
@@ -83,10 +91,15 @@ public static class DdaFeatures
         else { st.StreakWin = w; st.StreakLen = 1; }
 
         // --- 10 lượt gần nhất (mọi lượt) ---
-        Push(st.Last10, new[] { win, (double)a.SpecUsed, assist, st.SegAdImps });
+        // mỗi lượt: {win, specUsed, assist, adImps, home, replay, winNoNext}
+        // (trạng thái lưu từ bản app cũ chỉ có 4 cột đầu: Mean bỏ qua cột thiếu)
+        Push(st.Last10, new[] { win, (double)a.SpecUsed, assist, st.SegAdImps, home, replay, winNoNext });
         f["roll10_win"] = Mean(st.Last10, 0);
         f["roll10_spec_used"] = Mean(st.Last10, 1);
         f["roll10_assist"] = Mean(st.Last10, 2);
+        f["roll10_home"] = Mean(st.Last10, 4);
+        f["roll10_replay"] = Mean(st.Last10, 5);
+        f["roll10_win_no_next"] = Mean(st.Last10, 6);
         double adSum = 0;
         foreach (var r in st.Last10) adSum += r[3];
         f["roll10_ad_imps"] = adSum;
@@ -161,7 +174,7 @@ public static class DdaFeatures
         int n = 0;
         foreach (var r in buf)
         {
-            if (double.IsNaN(r[col])) continue;
+            if (col >= r.Length || double.IsNaN(r[col])) continue;
             s += r[col];
             n++;
         }

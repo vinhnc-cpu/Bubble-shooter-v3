@@ -64,11 +64,12 @@ def train_model(work_dir, run_dir):
     prod = os.path.join(S.RELEASE_DIR, 'latest', 'model.txt')
     if os.path.exists(prod):
         pm = lgb.Booster(model_file=prod)
-        if pm.feature_name() == F_DEVICE:
-            res['prod'] = evaluate(y, pm.predict(ev[F_DEVICE]), lvl, ai)
+        pf = pm.feature_name()
+        if set(pf) <= set(ev.columns):        # model đang dùng có thể có ít feature hơn (vd bản 1.x trước khi thêm nút bấm)
+            res['prod'] = evaluate(y, pm.predict(ev[pf]), lvl, ai)
             res['prod_version'] = json.load(open(os.path.join(S.RELEASE_DIR, 'latest', S.PKG_MANIFEST)))['version']
         else:
-            log.warning('model dang dung co bo feature khac -> bo qua so sanh')
+            log.warning('model dang dung can feature khong co trong du lieu -> bo qua so sanh')
     shutil.copy(os.path.join(work_dir, 'level_stats.csv'), os.path.join(run_dir, 'level_stats.csv'))
     # mẫu nhỏ để kiểm tra parity khi đóng gói
     ev.sample(min(200_000, len(ev)), random_state=0)[F_DEVICE].to_parquet(os.path.join(run_dir, 'parity_sample.parquet'), index=False)

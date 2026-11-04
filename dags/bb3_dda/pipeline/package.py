@@ -171,6 +171,8 @@ def package(run_dir, run_date, windows, metrics):
                        'gap_prev_sec': 'NaN o luot dau', 'roll10w_*': 'NaN neu chua co luot thang',
                        'tier_code': 'tra ' + S.PKG_TIER + ', mac dinh 3 (Z)',
                        'src': 'level neu <= 1000, nguoc lai 100 + (level - 100) % 900',
+                       'home / replay / win_no_next': 'user_do = 2 / user_do = 3 / thang ma user_do khac 1; user_do khong gui -> 0',
+                       'roll10_home / roll10_replay / roll10_win_no_next': 'trung binh 10 luot gan nhat (moi luot)',
                        'level tables': 'mu, sd, loss_rate, jump, total_balls theo src trong ' + S.PKG_LEVELS},
         zones={'1-5': [1, 5], '6-10': [6, 10], '11+': [11, None]},
         thr_flag=metrics['thr_flag'], thr_low=metrics['thr_low'],
