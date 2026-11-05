@@ -63,9 +63,12 @@ LOW_RISK_Q = 0.70                  # 70% lượt rủi ro thấp nhất -> đủ
 #     bớt nhẹ: từ màn 11, thắng dễ (z >= 0.5), mỗi bước 5% độ dư, tối đa 15% độ dư và 10% số bóng gốc.
 # v6: step_up=0.05, r_up_max=0.20, win_decay=2, min_level_cut=1, cut_z=0.3, step_down=0.10, g_down_max=0.50,
 #     cap_down=0.30, struggle_spec_used=1.0, struggle_assist=0.3
+# v7.1 (05/11/2026): bắt thêm user thắng dễ - bớt từ màn 6, z >= 0.2, mỗi bước 10% độ dư, tối đa 30% độ dư
+#     và 15% số bóng gốc (v7: màn 11, z 0.5, 5%, 15%, 10%). Mô phỏng Shadow: user bị bớt 8% -> 24%,
+#     user thắng dễ 30% -> 22%, lượt thua +0.5 điểm.
 POLICY = dict(
     min_level_add=1, step_up=0.10, r_up_max=0.10, win_decay=1,
-    min_level_cut=11, cut_wins=2, cut_z=0.5, step_down=0.05, g_down_max=0.15, cap_down=0.10, margin_n=10,
+    min_level_cut=6, cut_wins=2, cut_z=0.2, step_down=0.10, g_down_max=0.30, cap_down=0.15, margin_n=10,
     cut_min_balls=1,      # khi r < 0: bớt tối thiểu 1 quả
     struggle_spec_used=999.0, struggle_assist=999.0,   # "vật lộn" = thua
 )
